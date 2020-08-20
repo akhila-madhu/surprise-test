@@ -1,0 +1,57 @@
+
+class Response:
+    def __init__(self, dropped, stime):
+        self.dropped = dropped
+        self.stime = stime
+
+class Request:
+    def __init__(self, arrival, processt):
+        self.arrival = arrival
+        self.processt = processt
+
+class Buffer:
+    def __init__(self, size):
+        self.size = size
+        self.ftime = []
+
+    def Process(self, request):
+        while self.ftime:
+            if self.ftime[0] <= request.arrival:
+                self.ftime.pop(0)
+            else:
+                break
+        if len(self.ftime) == self.size:
+            return Response(True, -1)
+        if not self.ftime:
+            self.ftime = [request.arrival + request.processt]
+            return Response(False, request.arrival)
+        last_ele = self.ftime[-1]
+        self.ftime.append(last_ele + request.processt)
+        return Response(False, last_ele)
+
+def ReadRequests(count):
+    requests = []
+    for i in range(count):
+        arrival, processt = map(int, input().strip().split())
+        requests.append(Request(arrival, processt))
+    return requests
+
+def ProcessRequests(requests, buffer):
+    responses = []
+    for request in requests:
+        responses.append(buffer.Process(request))
+    return responses
+
+def PrintResponses(responses):
+    for response in responses:
+        print(response.stime if not response.dropped else -1)
+
+if __name__ == "__main__":
+    size, count = map(int, input().strip().split())
+    requests = ReadRequests(count)
+
+    buffer = Buffer(size)
+    responses = ProcessRequests(requests, buffer)
+
+    PrintResponses(responses)
+    
